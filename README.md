@@ -1,5 +1,5 @@
 # ShareScreenshot
-A SwiftUI Package to take and share screenshots of SwiftUI Views.
+A SwiftUI Package to `take` and `share` screenshots of SwiftUI Views. This works in portrait and landscape mode.
 
 ## 💻 Installation
 
