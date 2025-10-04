@@ -76,6 +76,7 @@ extension UIImage {
         }
     }
 
+    #if DEBUG
     // Determine image's file type
     func fileType() -> String {
         guard let data = self.toData(), data.count > 8 else { return "unknown" }
@@ -92,4 +93,5 @@ extension UIImage {
             return "unknown"
         }
     }
+    #endif
 }
