@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ScreenshotContentView<Content: View>: View {
     @Binding var toggle: Bool
+    var watermark: ScreenshotImageWatermark?
+    var watermarkText: ScreenshotTextWatermark?
     var completed: (UIImage) -> Void
     @ViewBuilder let content: () -> Content
 
@@ -20,7 +22,12 @@ struct ScreenshotContentView<Content: View>: View {
                 DispatchQueue.main.async {
                     toggle = false
                     // Use content with
-                    let screenshot = self.content().takeScreenshot(frame: frame, afterScreenUpdates: true)
+                    var screenshot: UIImage
+                    if let watermarkText {
+                        screenshot = self.content().takeScreenshot(frame: frame, watermark: watermarkText, afterScreenUpdates: true)
+                    } else {
+                        screenshot = self.content().takeScreenshot(frame: frame, watermark: watermark, afterScreenUpdates: true)
+                    }
                     self.completed(screenshot)
                 }
             }
