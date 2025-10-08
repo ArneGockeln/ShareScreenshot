@@ -2,8 +2,8 @@
 //  ScreenshotImageWatermark.swift
 //  ShareScreenshot
 //
-//  Created by Arne Gockeln on 07.10.25.
-//
+//  Created by Arne Gockeln.
+//  https://arnesoftware.com
 
 import SwiftUI
 

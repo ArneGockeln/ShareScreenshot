@@ -1,9 +1,9 @@
 //
 //  ScreenshotViewExtension.swift
-//  Elated
+//  ShareScreenshot
 //
-//  Created by Arne Gockeln on 04.10.25.
-//
+//  Created by Arne Gockeln.
+//  https://arnesoftware.com
 
 import UIKit
 import SwiftUI
@@ -36,19 +36,16 @@ extension UIView {
 
             // Text Size & Position
             let textSize = textWatermark.text.size(withAttributes: textAttributes)
-            let offset = textWatermark.offset
             let origin = pointForPosition(
                 textWatermark.position,
                 markSize: textSize,
-                in: bounds
+                in: bounds,
+                offset: textWatermark.offset
             )
 
             // Draw Text
             textWatermark.text.draw(
-                at: CGPoint(
-                    x: origin.x - offset,
-                    y: origin.y - offset
-                ),
+                at: origin,
                 withAttributes: textAttributes
             )
         }
@@ -74,13 +71,11 @@ extension UIView {
             let origin = pointForPosition(
                 imageWatermark.position,
                 markSize: markSize,
-                in: bounds
+                in: bounds,
+                offset: imageWatermark.offset
             )
             let wRect = CGRect(
-                origin: CGPoint(
-                    x: origin.x - imageWatermark.offset,
-                    y: origin.y - imageWatermark.offset
-                ),
+                origin: origin,
                 size: markSize
             )
 
@@ -93,26 +88,27 @@ extension UIView {
         }
     }
 
-    private func pointForPosition(_ position: WatermarkPosition, markSize size: CGSize, in rect: CGRect) -> CGPoint {
+    // Get CGPoint for WatermarkPosition
+    private func pointForPosition(_ position: WatermarkPosition, markSize size: CGSize, in rect: CGRect, offset: CGFloat = 0.0) -> CGPoint {
         switch position {
             case .topLeading:
-                return .zero
+                return CGPoint(x: offset, y: offset)
             case .topCenter:
-                return CGPoint(x: rect.width / 2, y: 0)
+                return CGPoint(x: rect.width / 2 - offset, y: offset)
             case .topTrailing:
-                return CGPoint(x: rect.width / 2 - size.width, y: 0)
+                return CGPoint(x: rect.width - size.width - offset, y: offset)
             case .leading:
-                return CGPoint(x: 0, y: rect.height / 2 - size.height / 2)
+                return CGPoint(x: offset, y: (rect.height / 2 - size.height / 2) - offset)
             case .center:
-                return CGPoint(x: rect.width / 2 - size.width / 2, y: rect.height / 2 - size.height / 2)
+                return CGPoint(x: (rect.width / 2 - size.width / 2) - offset, y: (rect.height / 2 - size.height / 2) - offset)
             case .trailing:
-                return CGPoint(x: rect.width - size.width, y: rect.height / 2 - size.height / 2)
+                return CGPoint(x: rect.width - size.width - offset, y: (rect.height / 2 - size.height / 2) - offset)
             case .bottomLeading:
-                return CGPoint(x: 0, y: rect.height - size.height)
+                return CGPoint(x: offset, y: rect.height - size.height - offset)
             case .bottomCenter:
-                return CGPoint(x: rect.width / 2 - size.width / 2, y: rect.height - size.height)
+                return CGPoint(x: (rect.width / 2 - size.width / 2) - offset, y: rect.height - size.height - offset)
             case .bottomTrailing:
-                return CGPoint(x: rect.width - size.width, y: rect.height - size.height)
+                return CGPoint(x: rect.width - size.width - offset, y: rect.height - size.height - offset)
         }
     }
 }
