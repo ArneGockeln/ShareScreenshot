@@ -1,28 +1,138 @@
 //
 //  ScreenshotViewExtension.swift
-//  Elated
+//  ShareScreenshot
 //
-//  Created by Arne Gockeln on 04.10.25.
-//
+//  Created by Arne Gockeln.
+//  https://arnesoftware.com
 
+import UIKit
 import SwiftUI
 
 extension UIView {
-    func takeScreenshot(afterScreenUpdates: Bool) -> UIImage {
+    // Take Screenshot from drawHierachy with TextWatermark rendered
+    func takeScreenshot(withTextWatermark watermark: ScreenshotTextWatermark?, afterScreenUpdates: Bool) -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
         return renderer.image { context in
+            // Take View Screenshot
             drawHierarchy(in: bounds, afterScreenUpdates: afterScreenUpdates)
+
+            guard let textWatermark = watermark,
+                      !textWatermark.text.isEmpty else {
+                return
+            }
+
+            // Text Attributes
+            let textAttributes: [NSAttributedString.Key: Any] = textWatermark.attributes ?? [
+                .font: UIFont.boldSystemFont(ofSize: 24),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.7),
+                .shadow: {
+                    let shadow = NSShadow()
+                    shadow.shadowColor = UIColor.black.withAlphaComponent(0.5)
+                    shadow.shadowOffset = CGSize(width: 1, height: 1)
+                    shadow.shadowBlurRadius = 3
+                    return shadow
+                }()
+            ]
+
+            // Text Size & Position
+            let textSize = textWatermark.text.size(withAttributes: textAttributes)
+            let origin = pointForPosition(
+                textWatermark.position,
+                markSize: textSize,
+                in: bounds,
+                offset: textWatermark.offset
+            )
+
+            // Draw Text
+            textWatermark.text.draw(
+                at: origin,
+                withAttributes: textAttributes
+            )
+        }
+    }
+
+    // Take Screenshot from drawHierachy with ImageWatermark rendered
+    func takeScreenshot(withUIImageWatermark watermark: ScreenshotImageWatermark?, afterScreenUpdates: Bool) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { context in
+            // Take View Screenshot
+            drawHierarchy(in: bounds, afterScreenUpdates: afterScreenUpdates)
+
+            guard let imageWatermark = watermark else {
+                return
+            }
+
+            // Calculate aspect ratio for watermark image
+            let watermarkScale = imageWatermark.scale
+            let wWidth = bounds.width * watermarkScale
+            let aspect = imageWatermark.image.size.height / imageWatermark.image.size.width
+            let wHeight = wWidth * aspect
+            let markSize = CGSize(width: wWidth, height: wHeight)
+            let origin = pointForPosition(
+                imageWatermark.position,
+                markSize: markSize,
+                in: bounds,
+                offset: imageWatermark.offset
+            )
+            let wRect = CGRect(
+                origin: origin,
+                size: markSize
+            )
+
+            // Draw Watermark Image on Image
+            imageWatermark.image.withRenderingMode(.alwaysOriginal).draw(
+                in: wRect,
+                blendMode: .normal,
+                alpha: alpha
+            )
+        }
+    }
+
+    // Get CGPoint for WatermarkPosition
+    private func pointForPosition(_ position: WatermarkPosition, markSize size: CGSize, in rect: CGRect, offset: CGFloat = 0.0) -> CGPoint {
+        switch position {
+            case .topLeading:
+                return CGPoint(x: offset, y: offset)
+            case .topCenter:
+                return CGPoint(x: rect.width / 2 - offset, y: offset)
+            case .topTrailing:
+                return CGPoint(x: rect.width - size.width - offset, y: offset)
+            case .leading:
+                return CGPoint(x: offset, y: (rect.height / 2 - size.height / 2) - offset)
+            case .center:
+                return CGPoint(x: (rect.width / 2 - size.width / 2) - offset, y: (rect.height / 2 - size.height / 2) - offset)
+            case .trailing:
+                return CGPoint(x: rect.width - size.width - offset, y: (rect.height / 2 - size.height / 2) - offset)
+            case .bottomLeading:
+                return CGPoint(x: offset, y: rect.height - size.height - offset)
+            case .bottomCenter:
+                return CGPoint(x: (rect.width / 2 - size.width / 2) - offset, y: rect.height - size.height - offset)
+            case .bottomTrailing:
+                return CGPoint(x: rect.width - size.width - offset, y: rect.height - size.height - offset)
         }
     }
 }
 
 extension View {
-    func takeScreenshot(frame: CGRect, afterScreenUpdates: Bool) -> UIImage {
+    // Get HostingController for Self
+    private func uiHostingController(frame: CGRect, afterScreenUpdates: Bool) -> UIHostingController<Self> {
         let hosting = UIHostingController(rootView: self)
         hosting.overrideUserInterfaceStyle = UIApplication.shared.currentUIWindow()?.overrideUserInterfaceStyle ?? .unspecified
         hosting.view.frame = frame
         hosting.ignoreSafeArea()
-        return hosting.view.takeScreenshot(afterScreenUpdates: afterScreenUpdates)
+        return hosting
+    }
+
+    // Take Screenshot with optional Text Watermark
+    func takeScreenshot(frame: CGRect, watermark: ScreenshotTextWatermark?, afterScreenUpdates: Bool) -> UIImage {
+        let hosting = uiHostingController(frame: frame, afterScreenUpdates: afterScreenUpdates)
+        return hosting.view.takeScreenshot(withTextWatermark: watermark, afterScreenUpdates: afterScreenUpdates)
+    }
+
+    // Take Screenshot with optional Image Watermark
+    func takeScreenshot(frame: CGRect, watermark: ScreenshotImageWatermark?, afterScreenUpdates: Bool) -> UIImage {
+        let hosting = uiHostingController(frame: frame, afterScreenUpdates: afterScreenUpdates)
+        return hosting.view.takeScreenshot(withUIImageWatermark: watermark, afterScreenUpdates: afterScreenUpdates)
     }
 }
 

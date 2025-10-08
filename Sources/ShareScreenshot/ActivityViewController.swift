@@ -1,9 +1,9 @@
 //
 //  ActivityViewController.swift
-//  Elated
+//  ShareScreenshot
 //
-//  Created by Arne Gockeln on 04.10.25.
-//
+//  Created by Arne Gockeln.
+//  https://arnesoftware.com
 
 import SwiftUI
 
