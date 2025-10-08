@@ -15,6 +15,14 @@ public struct ScreenshotRenderView<Content: View>: View {
     let content: () -> Content
     var completed: (UIImage) -> Void
 
+    public init(toggle: Binding<Bool>, @ViewBuilder content: @escaping () -> Content, completed: @escaping (UIImage) -> Void) {
+        self._toggle = toggle
+        self.content = content
+        self.completed = completed
+        self.watermark = nil
+        self.watermarkText = nil
+    }
+
     public init(toggle: Binding<Bool>, watermark: ScreenshotImageWatermark?, @ViewBuilder content: @escaping () -> Content, completed: @escaping (UIImage) -> Void) {
         self._toggle = toggle
         self.content = content
