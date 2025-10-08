@@ -72,13 +72,9 @@ That's it.
 
 Add a Text or Image watermark to the rendered screenshot. 
 
-Both options require to create a configuration struct. Set the `position` enum to place the watermark in one of the 9 standard locations.
- 
-| .topLeading | .topCenter | .topTrailing |
-| .leading | .center | .trailing |
-| .bottomLeading | .bottomCenter | .bottomTrailing |
+Both options require to create a configuration struct. Set the `position` enum to place the watermark in one of the 9 standard locations (topLeading, topCenter, topTrailing, leading, center, trailing, bottomLeading, bottomCenter, bottomTrailing).
 
-The `offset` property sets additional space between the screenshot bounds.
+The `offset` property sets additional space between the watermark and the screenshot bounds.
 
 ### Text Watermark
 
